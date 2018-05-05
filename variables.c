@@ -185,27 +185,31 @@ void appliquer_expansion_variables(variables * ens, char *ligne_originale, char 
     // A remplacer : le code ci-dessous n'expanse rien
     strcpy(ligne_expansee, ligne_originale);
 	
-	/* on parcourt la ligne originale */
+	/* on parcourt la ligne originale et on copie au fur et à mesure ligne_originale dans ligne_expansee */
 	int i=0;
+	int j=0;
 	while (ligne_originale[i]!='\0') {
 		if (ligne_originale[i]=='$'){
 			/* on copie le nom de la variable */
 			char nom[TAILLE_MAX_NOM];
 			i++; /* on ne copie pas le $! */
-			int j=0;
+			int k=0;
 			while ( (int(ligne_originale[i])<=90 && int(ligne_originale[i])>=65) || (int(ligne_originale[i])<=57 && int(ligne_originale[i])>=48) || int(ligne_originale[i])==42 || int(ligne_originale[i])==23 ){
 				/* condition du while : "tant que je lis un caractère alphanumérique (minuscule), * ou #" */
-				nom[j]=ligne_originale[i];
-				j++;
+				nom[k]=ligne_originale[i];
+				k++;
 				i++;
 			}
-			nom[j]='\0';
+			nom[k]='\0';
 			
-			/* on cherche la valeur de la variable pour la remplacer dans ligne_expansee */
+			/* on cherche la valeur de la variable pour la 'remplacer' dans ligne_expansee */
 			
 			
+		}else{ 
+			ligne_expansee[j]=ligne_originale[i]; 
 		}
 		i++;
+		j++;
 	}
 }
 
