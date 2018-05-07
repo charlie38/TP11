@@ -219,6 +219,7 @@ void appliquer_expansion_variables(variables * ens, char *ligne_originale, char 
 		i++;
 		j++;
 	}
+	ligne_expansee[j]='\0';
 }
 
 void affecter_variables_automatiques(variables *ens, int argc, char *argv[]) {
