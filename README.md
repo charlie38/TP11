@@ -110,7 +110,6 @@ int trouver_et_appliquer_affectation_variable(variables * ens, char *ligne) {
 ```
 
 f. cf variables.c
-**Attention : ~~à tester!~~ manque un '\0' quelque part... **
 
 ```c
 void appliquer_expansion_variables(variables * ens, char *ligne_originale, char *ligne_expansee) {
@@ -147,5 +146,6 @@ void appliquer_expansion_variables(variables * ens, char *ligne_originale, char 
 		i++;
 		j++;
 	}
+	ligne_expansee[j]='\0';
 }
 ```
