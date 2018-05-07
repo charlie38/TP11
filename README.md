@@ -109,3 +109,42 @@ int trouver_et_appliquer_affectation_variable(variables * ens, char *ligne) {
 }
 ```
 
+f. cf variables.c
+
+```c
+void appliquer_expansion_variables(variables * ens, char *ligne_originale, char *ligne_expansee) {
+
+	int i=0; /* compteur ligne_originale */
+	int j=0; /* compteur ligne_expansee */
+	
+	while (ligne_originale[i]!='\0') {
+		
+		if (ligne_originale[i]=='$'){
+			/* on copie le nom de la variable */
+			char nom[TAILLE_MAX_NOM];
+			i++; /* on ne copie pas le $! */
+			int k=0; /* compteur nom */
+			while ( ((int)ligne_originale[i]<=90 && (int)ligne_originale[i]>=65) || ((int)ligne_originale[i]<=57 && (int)ligne_originale[i]>=48) || (int)ligne_originale[i]==42 || (int)ligne_originale[i]==23 ){
+				/* condition du while : "tant que je lis un caractère alphanumérique, * ou #" */
+				nom[k]=ligne_originale[i];
+				k++;
+				i++;
+			}
+			nom[k]='\0';
+			
+			/* on cherche la valeur de la variable pour la 'remplacer' dans ligne_expansee */
+			int indice=trouver_variable(ens,nom);
+			char * valeur=valeur_variable(ens,indice);
+			int m=0;
+			while (valeur[m]!='\0') {
+				ligne_expansee[j]=valeur[m];
+				m++;
+			}
+		}else{ 
+			ligne_expansee[j]=ligne_originale[i]; 
+		}
+		i++;
+		j++;
+	}
+}
+```
