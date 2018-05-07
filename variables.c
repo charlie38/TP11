@@ -197,7 +197,7 @@ void appliquer_expansion_variables(variables * ens, char *ligne_originale, char 
 			char nom[TAILLE_MAX_NOM];
 			i++; /* on ne copie pas le $! */
 			int k=0; /* compteur nom */
-			while ( ((int)ligne_originale[i]<=90 && (int)ligne_originale[i])>=65) || ((int)ligne_originale[i]<=57 && (int)ligne_originale[i]>=48) || (int)ligne_originale[i]==42 || (int)ligne_originale[i]==23 ){
+			while ( ((int)ligne_originale[i]<=90 && (int)ligne_originale[i]>=65) || ((int)ligne_originale[i]<=57 && (int)ligne_originale[i]>=48) || (int)ligne_originale[i]==42 || (int)ligne_originale[i]==23 ){
 				/* condition du while : "tant que je lis un caractère alphanumérique, * ou #" */
 				nom[k]=ligne_originale[i];
 				k++;
