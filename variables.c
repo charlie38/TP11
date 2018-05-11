@@ -144,6 +144,27 @@ void afficher_ensemble_variables(variables * ens) {
     }
 }
 
+int indice_egal(char *ligne){
+/* vérifie si la ligne est de la forme "nom=valeur" (ie. sans espace autour de '=')
+retourne l'indice de '=', sinon -1 */
+
+	int i=0;
+
+	while (ligne[i]!='\0' && ligne[i]!='='){
+		i++;
+	}
+
+	if (ligne[i]=='\0'){
+		return -1;
+	}
+
+	if (ligne[i-1]==' ' || ligne[i+1]==' '){
+		return -1;
+	}
+
+	return i;
+}
+
 int trouver_et_appliquer_affectation_variable(variables * ens, char *ligne) {
 /*************** A COMPLETER ******************/
     /*
@@ -158,19 +179,84 @@ int trouver_et_appliquer_affectation_variable(variables * ens, char *ligne) {
      */
 /**********************************************/
 
-	int i=0;
-	while (ligne[i]!='\0' && ligne[i]!='='){
-		i++;
-	}
-	if (ligne[i]=='\0'){
-		printf("pas d'affectation trouvee\n");
+	//message de debug
+
+	/* reconnait une affectation */
+	int egal=indice_egal(ligne);
+	if (egal==-1){
+		//printf("pas d'affectation trouvee\n");
 		return 0;
-	}else{
-		ligne[i]='\0';
-		printf("affectation reussie!\n");
-		return 1;
 	}
 
+	/* on s'occupe du nom */
+	int i=0;
+	char * nom = NULL;
+	int debut_nom=0;
+
+	
+	while (i<egal){
+		if (ligne[i]==' '){
+			debut_nom=i+1;
+		}
+		i++;
+	}
+	nom=&ligne[debut_nom];
+
+	/* on remplace le '=' */
+	ligne[i]='\0';
+	
+
+	/* valeur */
+	i++;
+	char valeur[TAILLE_MAX_VALEUR];
+	int i_val=0;
+
+	while (ligne[i]!='\0'){
+
+		if (ligne[i]==' '){	/* pas de ' ' après '=' */
+			//printf("pas d'affectation trouvee : espace dans valeur\n");
+			return 0;
+		}
+
+		valeur[i_val]=ligne[i];
+		i_val++;
+		i++;
+	}
+
+	valeur[i_val]='\0';
+	
+	/* affectation */
+	ajouter_variable(ens,nom,valeur);
+	//printf("affectation reussie!\n");
+	return 1;
+
+}
+
+int dollar(char * ligne_originale){
+/* determine si un dollar indique bien la presence d'une variable
+renvoie son indice, sinon -1 */
+	int i=0;
+	while (ligne_originale[i]!='$' && ligne_originale[i]!='\0'){
+		i++;
+	}
+	if (ligne_originale[i]=='\0' || ligne_originale[i+1]==' '){
+		return -1;
+	}
+	return i;
+
+}
+
+
+int expansion(char * ligne_expansee, int i_exp, char * valeur) {
+/* concatene la valeur de la variable reconnue dans ligne expansee 
+retourne l'indice de fin de ligne_expansee pour la completer afterwards */
+	int i_val=0;
+	while (valeur[i_val]!='\0') {
+		ligne_expansee[i_exp]=valeur[i_val];
+		i_exp++;
+		i_val++;
+	}
+	return i_exp;	
 }
 
 void appliquer_expansion_variables(variables * ens, char *ligne_originale, char *ligne_expansee) {
@@ -187,39 +273,46 @@ void appliquer_expansion_variables(variables * ens, char *ligne_originale, char 
 	
 	/* on parcourt la ligne originale et on copie au fur et à mesure ligne_originale dans ligne_expansee */
 	/* (en remplaçant la variable par sa valeur) */
-	
-	int i=0; /* compteur ligne_originale */
-	int j=0; /* compteur ligne_expansee */
-	while (ligne_originale[i]!='\0') {
+
+	int i_org=0; 
+	int i_exp=0;
+	while (ligne_originale[i_org]!='\0') {
 		
-		if (ligne_originale[i]=='$'){
-			/* on copie le nom de la variable */
-			char nom[TAILLE_MAX_NOM];
-			i++; /* on ne copie pas le $! */
-			int k=0; /* compteur nom */
-			while ( ((int)ligne_originale[i]<=90 && (int)ligne_originale[i]>=65) || ((int)ligne_originale[i]<=57 && (int)ligne_originale[i]>=48) || (int)ligne_originale[i]==42 || (int)ligne_originale[i]==23 ){
-				/* condition du while : "tant que je lis un caractère alphanumérique, * ou #" */
-				nom[k]=ligne_originale[i];
-				k++;
-				i++;
+		if (ligne_originale[i_org]=='$'){
+
+			/* si dollar n'indique pas la présence d'une variable */
+			if (dollar(ligne_originale)==-1){
+				ligne_expansee[i_exp]=ligne_originale[i_org];
+				i_exp++;
+				i_org++;
+			}else{
+				i_org++; /* on ne copie pas $ */ 
+				/* on copie le nom de la variable */
+				char nom[TAILLE_MAX_NOM];
+				int i_nom=0; 
+				while ( isalnum(ligne_originale[i_org]) || ligne_originale[i_org]=='*' || ligne_originale[i_org]=='#' ){
+					nom[i_nom]=ligne_originale[i_org];
+					i_nom++;
+					i_org++;
+				}
+				nom[i_nom]='\0';
+				
+				/* on cherche la valeur de la variable */
+				int indice=trouver_variable(ens,nom);
+				char *valeur=valeur_variable(ens,indice);
+
+				/* on remplace la valeur de la variable dans ligne_expansee */
+				/* et on met à jour i_exp */
+				i_exp=expansion(ligne_expansee,dollar(ligne_originale),valeur);
 			}
-			nom[k]='\0';
-			
-			/* on cherche la valeur de la variable pour la 'remplacer' dans ligne_expansee */
-			int indice=trouver_variable(ens,nom);
-			char * valeur=valeur_variable(ens,indice);
-			int m=0;
-			while (valeur[m]!='\0') {
-				ligne_expansee[j]=valeur[m];
-				m++;
-			}
-		}else{ 
-			ligne_expansee[j]=ligne_originale[i]; 
+		}else{
+			ligne_expansee[i_exp]=ligne_originale[i_org];
+			i_exp++;
+			i_org++;
 		}
-		i++;
-		j++;
+		
 	}
-	ligne_expansee[j]='\0';
+	ligne_expansee[i_exp]='\0';
 }
 
 void affecter_variables_automatiques(variables *ens, int argc, char *argv[]) {
