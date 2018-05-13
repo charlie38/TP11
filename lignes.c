@@ -35,9 +35,10 @@ int lire_ligne_fichier(FILE * fichier, char *ligne) {
        dans la variable ligne. Ne pas inclure le '\n' final dans la variable
        ligne, ne pas oublier de completer la ligne avec un '\0' terminal.
        La valeur de retour doit etre 0 s'il n'y a plus rien a lire (fin de
-       fichier sans avoir lu aucun caractere).
+       fichier sans avoir lu aucun caractere) et 1 sinon.
      */
 /**********************************************/
+
 	int i=0;
 	char c='\0';
 	fscanf(fichier,"%c",&c);
@@ -54,6 +55,7 @@ int lire_ligne_fichier(FILE * fichier, char *ligne) {
 	}else{
 		return 0;
 	}
+
 }
 
 void decouper_ligne(char *ligne, char *ligne_decoupee[]) {
@@ -69,8 +71,39 @@ void decouper_ligne(char *ligne, char *ligne_decoupee[]) {
        A la fin d'un mot, on remplace le 1er espace qui le suit par '\0'
      */
 /**********************************************/
-    // A remplacer : cette solution temporaire ne découpe rien, elle ne
-    // fonctionne qu'avec les commandes sans argument
-    ligne_decoupee[0] = ligne;
-    ligne_decoupee[1] = NULL;
+
+	int i_l = 0;
+	int i_d = 0;
+	int premier_espace = 1;
+
+	/* on s'occupe du premier mot */
+	ligne_decoupee[i_d]=&ligne[i_l];
+	i_d++;
+	i_l++;
+
+	while (ligne[i_l]!='\0'){
+
+		if (ligne[i_l]==' '){
+
+			if (premier_espace){
+
+				ligne[i_l]='\0';
+				i_l++;
+
+				premier_espace = 0;
+
+				ligne_decoupee[i_d]=&ligne[i_l];
+				i_d++;
+			}else{
+				i_l++;
+			}
+		}else{
+			if (!premier_espace) {
+				premier_espace = 1;
+			}
+			i_l++;
+		}
+	}
+	ligne_decoupee[i_d] = NULL;
+	
 }
