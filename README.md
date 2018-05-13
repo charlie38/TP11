@@ -237,3 +237,45 @@ void appliquer_expansion_variables(variables * ens, char *ligne_originale, char 
 }
 
 ```
+
+g. cf lignes.c
+
+```c
+void decouper_ligne(char *ligne, char *ligne_decoupee[]) {
+
+	int i_l = 0;
+	int i_d = 0;
+	int premier_espace = 1;
+
+	/* on s'occupe du premier mot */
+	ligne_decoupee[i_d]=&ligne[i_l];
+	i_d++;
+	i_l++;
+
+	while (ligne[i_l]!='\0'){
+
+		if (ligne[i_l]==' '){
+
+			if (premier_espace){
+
+				ligne[i_l]='\0';
+				i_l++;
+
+				premier_espace = 0;
+
+				ligne_decoupee[i_d]=&ligne[i_l];
+				i_d++;
+			}else{
+				i_l++;
+			}
+		}else{
+			if (!premier_espace) {
+				premier_espace = 1;
+			}
+			i_l++;
+		}
+	}
+	ligne_decoupee[i_d] = NULL;
+	
+}
+```
